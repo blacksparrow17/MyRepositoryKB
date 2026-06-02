@@ -1,13 +1,41 @@
 {
-     "entries": {
-       "Capture Loop Order": {
-         "desc": "Stores loop display order for validation and reporting.",
-         "tags": "#decipher #loop",
-         "code": "<exec>\norder = [row.index for row in rows]\n</exec>",
-         "files": ["screenshot.png", "loop.xlsx", "sample.dat"],
-         "created": "2026-10-05",
-         "modified": "2026-10-08",
-         "isFavorite": false
-       }
-     }
-   }
+  "lastUpdated": "2026-10-15T00:00:00Z",
+  "entries": {
+    "Capture Loop Order": {
+      "desc": "Stores loop display order for validation and reporting.",
+      "tags": "#decipher #loop",
+      "code": "<exec>\norder = [row.index for row in rows]\n</exec>",
+      "files": ["screenshot.png", "loop.xlsx", "sample.dat"],
+      "created": "2026-10-05",
+      "modified": "2026-10-08",
+      "isFavorite": false
+    },
+    "Hide Continue Button": {
+      "desc": "Hides the continue button using jQuery.",
+      "tags": "#ui #js",
+      "code": "$('.continue').hide();",
+      "files": [],
+      "created": "2026-10-01",
+      "modified": "2026-10-01",
+      "isFavorite": true
+    },
+    "Loop Validation": {
+      "desc": "Validates minimum selections in a loop.",
+      "tags": "#decipher #python",
+      "code": "if sum(row.val for row in rows) < 3:\n  error('Select at least 3')",
+      "files": [],
+      "created": "2026-10-02",
+      "modified": "2026-10-02",
+      "isFavorite": false
+    },
+    "Dictionary Example": {
+      "desc": "Basic dictionary manipulation.",
+      "tags": "#python #data",
+      "code": "my_dict = {'key': 'value'}\nprint(my_dict.get('key'))",
+      "files": [],
+      "created": "2026-10-03",
+      "modified": "2026-10-03",
+      "isFavorite": false
+    }
+  }
+}
