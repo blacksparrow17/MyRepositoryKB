@@ -1,11 +1,15 @@
 {
-  "lastUpdated": "2026-10-15T00:00:00Z",
+  "lastUpdated": "2026-06-02T10:46:18.959Z",
   "entries": {
     "Capture Loop Order": {
       "desc": "Stores loop display order for validation and reporting.",
       "tags": "#decipher #loop",
       "code": "<exec>\norder = [row.index for row in rows]\n</exec>",
-      "files": ["screenshot.png", "loop.xlsx", "sample.dat"],
+      "files": [
+        "screenshot.png",
+        "loop.xlsx",
+        "sample.dat"
+      ],
       "created": "2026-10-05",
       "modified": "2026-10-08",
       "isFavorite": false
@@ -35,6 +39,19 @@
       "files": [],
       "created": "2026-10-03",
       "modified": "2026-10-03",
+      "isFavorite": false
+    },
+    "AI": {
+      "desc": "test case",
+      "tags": "Automation",
+      "code": "This is funny part",
+      "files": [
+        "Screenshot 2025-11-08 105905.png",
+        "Exercise.pdf",
+        "Q1.jpg"
+      ],
+      "created": "2026-06-02",
+      "modified": "2026-06-02",
       "isFavorite": false
     }
   }
