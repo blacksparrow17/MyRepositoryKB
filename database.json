@@ -1,0 +1,13 @@
+{
+     "entries": {
+       "Capture Loop Order": {
+         "desc": "Stores loop display order for validation and reporting.",
+         "tags": "#decipher #loop",
+         "code": "<exec>\norder = [row.index for row in rows]\n</exec>",
+         "files": ["screenshot.png", "loop.xlsx", "sample.dat"],
+         "created": "2026-10-05",
+         "modified": "2026-10-08",
+         "isFavorite": false
+       }
+     }
+   }
