@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Code Repository V9</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+<style>
+:root {
+  --primary: #0f172a;
+  --accent: #2563eb;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text-main: #334155;
+}
+* { box-sizing: border-box; }
+body { 
+  margin: 0; 
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+  background: var(--bg);
+  height: 100vh;
+  overflow: hidden; 
+  color: var(--text-main);
+}
+
+/* Layout Wrappers */
+#home, #addPage { display: flex; flex-direction: column; height: 100vh; }
+#addPage { display: none; }
+
+/* Header & Topbar */
+.header {
+  background: var(--primary); color: #fff; padding: 16px;
+  display: flex; justify-content: center; align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;
+}
+.header h1 { margin: 0; font-size: 1.4rem; font-weight: 600; letter-spacing: 0.5px;}
+
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 20px; background: #fff; border-bottom: 1px solid var(--border); z-index: 9;
+}
+.search-group { display: flex; gap: 8px; width: 400px; }
+.search-group input { flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; }
+.action-group { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; color: #64748b;}
+
+/* Buttons */
+.btn {
+  background: var(--accent); color: #fff; border: none; border-radius: 6px;
+  padding: 8px 16px; cursor: pointer; font-weight: 500; transition: background 0.2s;
+}
+.btn:hover { background: #1d4ed8; }
+.btn2 { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; }
+.btn2:hover { background: #e2e8f0; }
+
+/* Main Layout */
+.layout { display: flex; flex: 1; overflow: hidden; }
+.left { width: 280px; background: #fff; border-right: 1px solid var(--border); overflow-y: auto; padding: 16px 12px; }
+
+/* Fix 3: Keep whole view system container locked, context scrolls internally */
+.main { flex: 1; padding: 20px; overflow: hidden; display: flex; flex-direction: column; }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex; flex-direction: column; flex: 1; overflow: hidden;
+}
+.card h2 { margin-top: 0; margin-bottom: 4px; color: #0f172a; flex-shrink: 0; }
+.meta { font-size: 0.85rem; color: #64748b; margin-bottom: 16px; flex-shrink: 0; }
+.desc { background: #f8fbff; border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; flex-shrink: 0; }
+.codehead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
+.codehead h3 { margin: 0; font-size: 1.1rem; }
+
+/* Fix 3 Container Adjustment */
+.codebox-wrap { border-radius: 8px; overflow: hidden; margin-bottom: 20px; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+pre[class*="language-"] { margin: 0 !important; border-radius: 8px; flex: 1; overflow-y: auto !important; }
+
+/* Sidebar Items */
+.treehdr { font-weight: 600; margin-top: 16px; margin-bottom: 4px; cursor: pointer; color: #0f172a; padding: 4px 8px; border-radius: 4px;}
+.treehdr:hover { background: #f1f5f9; }
+.children { display: none; margin-left: 14px; border-left: 1px solid var(--border); padding-left: 4px; }
+.topic { padding: 8px 12px; cursor: pointer; border-radius: 6px; font-size: 0.95rem; margin-bottom: 2px;}
+.topic:hover { background: #eef4ff; color: var(--accent); }
+
+/* Attachments */
+.attach-title { font-size: 1rem; font-weight: 600; margin: 0 0 8px 0; flex-shrink: 0; }
+.attach { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+.attach-item {
+  display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9;
+  padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border);
+  color: #334155; text-decoration: none; font-size: 0.9rem;
+}
+.attach-item:hover { background: #e2e8f0; }
+
+/* Add Page Layout */
+.addWrap { padding: 20px; display: flex; flex-direction: column; height: 100vh; max-width: 1200px; margin: 0 auto; width: 100%; overflow: hidden;}
+.add-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;}
+.add-header h2 { margin: 0; font-size: 1.5rem; text-align: center; flex: 1; }
+.formCard { background: #fff; border-radius: 8px; padding: 20px; flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border); min-height: 0; }
+.grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; flex: 1; min-height: 0; }
+.col { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-right: 10px;}
+label { font-weight: 600; margin: 12px 0 4px 0; font-size: 0.9rem; flex-shrink: 0;}
+input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; flex-shrink: 0;}
+textarea.descEdit { height: 100px; resize: vertical; }
+
+.editorWrap { display: flex; flex-direction: column; flex: 1; margin-top: 12px; min-height: 0;}
+.editorBar { background: #1e293b; color: #e2e8f0; padding: 10px 16px; border-radius: 6px 6px 0 0; font-size: 0.9rem; font-weight: 500; flex-shrink: 0;}
+.editor { flex: 1; background: #0f172a; color: #f8fafc; font-family: Consolas, monospace; padding: 16px; resize: none; border-radius: 0 0 6px 6px; border: none; min-height: 150px; }
+.editor:focus { outline: none; }
+
+.attachBox { border: 2px dashed #cbd5e1; padding: 16px; border-radius: 6px; text-align: center; background: #f8fafc;}
+.footer { display: flex; justify-content: flex-end; gap: 12px; padding-top: 20px; border-top: 1px solid var(--border); margin-top: 20px; flex-shrink: 0;}
+
+/* Image Modal Styles */
+.modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); align-items: center; justify-content: center; z-index: 100; }
+.modalbox { background: #fff; padding: 24px; border-radius: 8px; position: relative; display: flex; flex-direction: column; align-items: center; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
+.modal-close { position: absolute; right: 14px; top: 12px; cursor: pointer; font-size: 20px; color: #64748b; font-weight: bold; }
+.modal-icon { font-size: 3.5rem; margin-bottom: 8px; margin-top: 10px; }
+.modal-filename { font-weight: 600; font-size: 1.1rem; color: #0f172a; margin-bottom: 4px; }
+.modal-meta { font-size: 0.85rem; color: #64748b; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="header"><h1>Code Repository</h1></div>
+
+  <div class="topbar">
+    <div class="search-group">
+      <input id="q" placeholder="Search topics, tags, or content..." onkeyup="searchTopics()">
+      <button class="btn" onclick="searchTopics()">Search</button>
+      <button class="btn btn2" onclick="clearSearch()">Clear</button>
+    </div>
+    <div class="action-group">
+      <span id="syncStatus" style="font-size: 0.9rem; color: #64748b;">○ Local</span>
+      <span id="lastUpdated">Last Updated: Today</span>
+      <button class="btn" onclick="showAdd()" id="addNewBtn">+ Add New</button>
+      <span id="authSection">
+        <button class="btn btn2" onclick="openLoginModal()" id="loginBtn">🔓 Login</button>
+      </span>
+      <span id="adminSection" style="display: none;">
+        <span style="color: #334155; margin-right: 12px;">👤 <b id="loggedInUser"></b></span>
+        <button class="btn btn2" onclick="logout()">🔐 Logout</button>
+      </span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="left" id="sidebar">
+      <div class="treehdr">⭐ Favorites (1)</div>
+      <div class="topic" onclick="loadTopic('Hide Continue Button')">Hide Continue Button</div>
+
+      <div class="treehdr">🕒 Recent (1)</div>
+      <div class="topic recent-topic" onclick="loadTopic('Capture Loop Order')">Capture Loop Order</div>
+
+      <div class="treehdr folder" onclick="toggle('folder-decipher')">▶ Decipher (2)</div>
+      <div id="folder-decipher" class="children">
+        <div class="topic" onclick="loadTopic('Capture Loop Order')">Capture Loop Order</div>
+        <div class="topic" onclick="loadTopic('Loop Validation')">Loop Validation</div>
+      </div>
+
+      <div class="treehdr folder" onclick="toggle('folder-python')">▶ Python (1)</div>
+      <div id="folder-python" class="children">
+        <div class="topic" onclick="loadTopic('Dictionary Example')">Dictionary Example</div>
+      </div>
+      
+      <div id="independent-topics"></div>
+    </div>
+
+    <div class="main">
+      <div class="card" id="mainCard">
+        <h2 id="viewTitle">Capture Loop Order</h2>
+        <div class="meta" id="viewMeta">Created: Today | #decipher #loop</div>
+        <div class="desc">
+          <b>Notes / Description:</b><br>
+          <span id="viewDesc">Stores loop display order for validation and reporting.</span>
+        </div>
+        <div class="codehead">
+          <h3>Code Snippet</h3>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn2 admin-only" onclick="toggleFavorite(currentViewingTopic)" id="favBtn" style="display: none;">☆ Add to Favorites</button>
+            <button class="btn btn2 admin-only" onclick="editTopic(currentViewingTopic)" style="display: none;">✏️ Edit</button>
+            <button class="btn btn2" onclick="copyCode()">📋 Copy Code</button>
+            <button class="btn btn2 admin-only" style="color: #dc2626; display: none;" onclick="deleteTopic(currentViewingTopic)">🗑️ Delete</button>
+          </div>
+        </div>
+        <div class="codebox-wrap">
+<pre><code id="viewCode" class="language-markup">&lt;exec&gt;
+order = [row.index for row in rows]
+&lt;/exec&gt;</code></pre>
+        </div>
+        
+        <h3 class="attach-title">Attachments</h3>
+        <div class="attach" id="viewAttach">
+          <span class="attach-item" onclick="openImgModal('screenshot.png')">🖼 screenshot.png</span>
+          <a href="data:text/plain;charset=utf-8,MockExcelData" download="loop.xlsx" class="attach-item">📊 loop.xlsx</a>
+          <a href="data:text/plain;charset=utf-8,MockDataAsset" download="sample.dat" class="attach-item">📄 sample.dat</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="addPage">
+  <div class="addWrap">
+    <div class="add-header">
+      <button class="btn btn2" onclick="showHome()">← Back</button>
+      <h2>Create Repository Entry</h2>
+      <div style="width: 72px;"></div>
+    </div>
+    <div class="formCard">
+      <div class="grid">
+        <div class="col">
+          <label>Title <span style="color:red">*</span></label>
+          <input id="addTitle" placeholder="e.g., Hide Continue Button">
+          
+          <label>Parent Topic</label>
+          <select id="addTopic" onchange="handleTopicSelect()">
+            <option value="">None (Independent Entry)</option>
+            <option value="folder-decipher">Decipher</option>
+            <option value="folder-python">Python</option>
+            <option value="new">+ Create New Topic</option>
+          </select>
+          
+          <label>Tags</label>
+          <input id="addTags" placeholder="e.g., #xml #loop">
+          
+          <label>Description & Notes</label>
+          <textarea id="addDesc" class="descEdit" placeholder="Explain what this code does..."></textarea>
+          
+          <label>Attachments</label>
+          <div class="attachBox">
+            <input type="file" id="addFiles" multiple style="display:none" onchange="appendFilesToArray()">
+            <button class="btn btn2" onclick="document.getElementById('addFiles').click()">Choose Files</button>
+            <div id="fileDisplay" style="margin-top:8px; font-size:0.85rem; color:#64748b;">No files selected</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="editorWrap">
+            <div class="editorBar">Code Editor</div>
+            <textarea id="addCode" class="editor" placeholder="Paste your code here..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn2" onclick="showHome()">Cancel</button>
+        <button class="btn" onclick="saveEntry()">Save Entry</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="imgModal">
+  <div class="modalbox">
+    <span class="modal-close" onclick="closeImgModal()">✖</span>
+    <div id="modalImageContainer" style="margin-bottom: 16px; max-height: 400px; overflow: auto;">
+      <img id="modalImage" src="" alt="Preview" style="max-width: 100%; max-height: 400px; border-radius: 4px; display: none;">
+    </div>
+    <div class="modal-filename" id="modalFileName">file_name.png</div>
+    <div class="modal-meta">Click button below to download</div>
+    <a id="modalDownloadTrigger" href="#" download class="btn">⬇️ Download File</a>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal" id="loginModal" style="display: none;">
+  <div class="modalbox" style="max-width: 350px; width: 90%;">
+    <span class="modal-close" onclick="closeLoginModal()">✖</span>
+    <h2 style="margin-top: 16px; margin-bottom: 8px; color: #0f172a;">Admin Login</h2>
+    <p style="color: #64748b; margin-bottom: 20px; font-size: 0.9rem;">Enter credentials to unlock admin features</p>
+    
+    <div style="margin-bottom: 16px;">
+      <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #0f172a;">Username</label>
+      <input type="text" id="loginUsername" placeholder="Enter username" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #0f172a;">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter password" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+    </div>
+    
+    <div id="loginError" style="color: #dc2626; margin-bottom: 12px; font-size: 0.9rem; display: none;"></div>
+    
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn2" style="flex: 1;" onclick="closeLoginModal()">Cancel</button>
+      <button class="btn" style="flex: 1;" onclick="verifyLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script>
+// Mock Database State with timestamps and favorites
+const repoDB = {
+  "Capture Loop Order": { desc: "Stores loop display order for validation and reporting.", tags: "#decipher #loop", code: "<exec>\norder = [row.index for row in rows]\n</exec>", files: ["screenshot.png", "loop.xlsx", "sample.dat"], created: "2026-10-05", modified: "2026-10-08", isFavorite: false },
+  "Hide Continue Button": { desc: "Hides the continue button using jQuery.", tags: "#ui #js", code: "$('.continue').hide();", files: [], created: "2026-10-01", modified: "2026-10-01", isFavorite: true },
+  "Loop Validation": { desc: "Validates minimum selections in a loop.", tags: "#decipher #python", code: "if sum(row.val for row in rows) < 3:\n  error('Select at least 3')", files: [], created: "2026-10-02", modified: "2026-10-02", isFavorite: false },
+  "Dictionary Example": { desc: "Basic dictionary manipulation.", tags: "#python #data", code: "my_dict = {'key': 'value'}\nprint(my_dict.get('key'))", files: [], created: "2026-10-03", modified: "2026-10-03", isFavorite: false }
+};
+
+// State handling file references across repetitive choose instances
+let persistentFileArray = [];
+let currentViewingTopic = null;
+let editingTopic = null;
+
+// Admin Authentication
+const ADMIN_CREDENTIALS = {
+  username: 'rawat.pankaj',
+  password: 'Welcome@2025'
+};
+
+// GitHub Configuration
+const GITHUB_CONFIG = {
+  owner: 'blacksparrow17',
+  repo: 'MyRepositoryKB',
+  token: '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',
+  apiUrl: 'https://api.github.com'
+};
+
+// GitHub API Headers
+const githubHeaders = {
+  'Authorization': `token ${GITHUB_CONFIG.token}`,
+  'Content-Type': 'application/json',
+  'Accept': 'application/vnd.github.v3+json'
+};
+
+let isAdminLoggedIn = false;
+let currentAdminUser = null;
+let syncStatus = 'disconnected'; // disconnected, connecting, connected, error
+
+// GitHub API Functions
+async function fetchDatabaseFromGitHub() {
+  try {
+    updateSyncStatus('connecting');
+    
+    const url = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: githubHeaders
+    });
+    
+    if (!response.ok) {
+      throw new Error(`GitHub API Error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Decode base64 content
+    const decodedContent = atob(data.content);
+    const databaseContent = JSON.parse(decodedContent);
+    
+    // Merge GitHub data with local repoDB
+    if (databaseContent.entries) {
+      Object.assign(repoDB, databaseContent.entries);
+    }
+    
+    updateSyncStatus('connected');
+    return databaseContent;
+    
+  } catch (error) {
+    console.error('Error fetching from GitHub:', error);
+    updateSyncStatus('error');
+    alert('⚠️ Could not sync with GitHub. Check your token/repo. Working offline with local data.');
+    return null;
+  }
+}
+
+async function saveDatabaseToGitHub() {
+  if (!isAdminLoggedIn) {
+    return false;
+  }
+  
+  try {
+    updateSyncStatus('connecting');
+    
+    const databaseContent = {
+      lastUpdated: new Date().toISOString(),
+      entries: repoDB
+    };
+    
+    const encodedContent = btoa(JSON.stringify(databaseContent, null, 2));
+    
+    // First, try to get the current file to get its SHA
+    const getUrl = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
+    
+    let sha = null;
+    try {
+      const getResponse = await fetch(getUrl, {
+        method: 'GET',
+        headers: githubHeaders
+      });
+      
+      if (getResponse.ok) {
+        const existingFile = await getResponse.json();
+        sha = existingFile.sha;
+      }
+    } catch (e) {
+      console.log('File may not exist yet, creating new');
+    }
+    
+    // Now update/create the file
+    const putUrl = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
+    
+    const putResponse = await fetch(putUrl, {
+      method: 'PUT',
+      headers: githubHeaders,
+      body: JSON.stringify({
+        message: `Update repository - ${new Date().toLocaleString()}`,
+        content: encodedContent,
+        ...(sha && { sha: sha })
+      })
+    });
+    
+    if (!putResponse.ok) {
+      throw new Error(`GitHub API Error: ${putResponse.status}`);
+    }
+    
+    updateSyncStatus('connected');
+    console.log('✓ Saved to GitHub');
+    return true;
+    
+  } catch (error) {
+    console.error('Error saving to GitHub:', error);
+    updateSyncStatus('error');
+    alert('⚠️ Could not save to GitHub. Data saved locally only.');
+    return false;
+  }
+}
+
+async function uploadFileToGitHub(fileName, fileData) {
+  if (!isAdminLoggedIn) {
+    return false;
+  }
+  
+  try {
+    // Extract base64 data
+    const base64Data = fileData.split(',')[1];
+    
+    // Upload to attachments folder
+    const uploadUrl = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/attachments/${fileName}`;
+    
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: githubHeaders,
+      body: JSON.stringify({
+        message: `Upload attachment: ${fileName}`,
+        content: base64Data
+      })
+    });
+    
+    if (!uploadResponse.ok) {
+      throw new Error(`Upload Error: ${uploadResponse.status}`);
+    }
+    
+    console.log(`✓ Uploaded ${fileName} to GitHub`);
+    return true;
+    
+  } catch (error) {
+    console.error('Error uploading file to GitHub:', error);
+    return false;
+  }
+}
+
+// Update sync status indicator
+function updateSyncStatus(status) {
+  syncStatus = status;
+  const statusEl = document.getElementById('syncStatus');
+  
+  if (!statusEl) return;
+  
+  switch(status) {
+    case 'connected':
+      statusEl.innerHTML = '☁️ Synced';
+      statusEl.style.color = '#10b981';
+      break;
+    case 'connecting':
+      statusEl.innerHTML = '⟳ Syncing...';
+      statusEl.style.color = '#f59e0b';
+      break;
+    case 'error':
+      statusEl.innerHTML = '⚠️ Offline';
+      statusEl.style.color = '#ef4444';
+      break;
+    default:
+      statusEl.innerHTML = '○ Local';
+      statusEl.style.color = '#64748b';
+  }
+}
+
+// Initialize localStorage for backup/fallback
+function initializeFileStorage() {
+  if (!localStorage.getItem('repositoryFiles')) {
+    localStorage.setItem('repositoryFiles', JSON.stringify({}));
+  }
+}
+
+// Store file in localStorage as Base64 (fallback)
+function storeFileInStorage(fileName, fileData) {
+  const files = JSON.parse(localStorage.getItem('repositoryFiles') || '{}');
+  files[fileName] = {
+    name: fileName,
+    data: fileData,
+    timestamp: new Date().toISOString()
+  };
+  localStorage.setItem('repositoryFiles', JSON.stringify(files));
+  
+  // Also upload to GitHub if logged in
+  if (isAdminLoggedIn) {
+    uploadFileToGitHub(fileName, fileData);
+  }
+}
+
+// Retrieve file from localStorage or GitHub
+function getFileFromStorage(fileName) {
+  const files = JSON.parse(localStorage.getItem('repositoryFiles') || '{}');
+  return files[fileName] || null;
+}
+
+// Get all stored files
+function getAllStoredFiles() {
+  return JSON.parse(localStorage.getItem('repositoryFiles') || '{}');
+}
+
+// Delete file from storage
+function deleteFileFromStorage(fileName) {
+  const files = JSON.parse(localStorage.getItem('repositoryFiles') || '{}');
+  delete files[fileName];
+  localStorage.setItem('repositoryFiles', JSON.stringify(files));
+}
+
+// Initialize on page load
+window.addEventListener('load', async function() {
+  initializeFileStorage();
+  
+  // Try to fetch from GitHub
+  await fetchDatabaseFromGitHub();
+  
+  updateFavoritesSection();
+  updateUIForUserAccess();
+  
+  // Attach change event listener to file input
+  const fileInput = document.getElementById('addFiles');
+  if (fileInput) {
+    fileInput.addEventListener('change', appendFilesToArray);
+  }
+  
+  // Check for saved login in sessionStorage
+  const savedLogin = sessionStorage.getItem('adminLogin');
+  if (savedLogin === 'true') {
+    isAdminLoggedIn = true;
+    currentAdminUser = 'rawat.pankaj';
+    updateUIForUserAccess();
+  }
+});
+
+// Login Modal Functions
+function openLoginModal() {
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('loginUsername').focus();
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginError').innerText = '';
+}
+
+function closeLoginModal() {
+  document.getElementById('loginModal').style.display = 'none';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+function verifyLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errorDiv = document.getElementById('loginError');
+  
+  if (!username || !password) {
+    errorDiv.innerText = 'Please enter both username and password';
+    errorDiv.style.display = 'block';
+    return;
+  }
+  
+  if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    // Login successful
+    isAdminLoggedIn = true;
+    currentAdminUser = username;
+    sessionStorage.setItem('adminLogin', 'true');
+    
+    updateUIForUserAccess();
+    closeLoginModal();
+    
+    alert(`Welcome back, ${username}! You are now logged in as Admin.`);
+  } else {
+    // Login failed
+    errorDiv.innerText = 'Invalid username or password';
+    errorDiv.style.display = 'block';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+  }
+}
+
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    isAdminLoggedIn = false;
+    currentAdminUser = null;
+    sessionStorage.removeItem('adminLogin');
+    
+    updateUIForUserAccess();
+    alert('You have been logged out. Now in public viewing mode.');
+  }
+}
+
+// Update UI based on login status
+function updateUIForUserAccess() {
+  const addNewBtn = document.getElementById('addNewBtn');
+  const authSection = document.getElementById('authSection');
+  const adminSection = document.getElementById('adminSection');
+  
+  if (isAdminLoggedIn) {
+    // Show admin section
+    authSection.style.display = 'none';
+    adminSection.style.display = 'flex';
+    document.getElementById('loggedInUser').innerText = currentAdminUser;
+    
+    // Enable admin buttons
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = 'block';
+      el.style.opacity = '1';
+      el.style.pointerEvents = 'auto';
+    });
+    
+    addNewBtn.style.opacity = '1';
+    addNewBtn.style.pointerEvents = 'auto';
+  } else {
+    // Show public section
+    authSection.style.display = 'block';
+    adminSection.style.display = 'none';
+    
+    // Disable admin buttons
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = 'none';
+    });
+    
+    addNewBtn.style.opacity = '0.5';
+    addNewBtn.style.pointerEvents = 'none';
+    addNewBtn.title = 'Login as admin to add new entries';
+  }
+}
+
+// UI Functions
+function toggle(id) { 
+  let x = document.getElementById(id); 
+  let hdr = x.previousElementSibling;
+  if(x.style.display == 'block') {
+    x.style.display = 'none';
+    hdr.innerHTML = hdr.innerHTML.replace('▼', '▶');
+  } else {
+    x.style.display = 'block';
+    hdr.innerHTML = hdr.innerHTML.replace('▶', '▼');
+  }
+}
+
+function showAdd() { 
+  if (!isAdminLoggedIn) {
+    alert('You need to be logged in as admin to add new entries. Please click the "Login" button.');
+    openLoginModal();
+    return;
+  }
+  
+  document.getElementById('home').style.display = 'none'; 
+  document.getElementById('addPage').style.display = 'flex'; 
+}
+
+function showHome() { 
+  document.getElementById('home').style.display = 'flex'; 
+  document.getElementById('addPage').style.display = 'none'; 
+  persistentFileArray = []; 
+  document.getElementById('fileDisplay').innerText = 'No files selected';
+  editingTopic = null;
+  
+  // Reset save button
+  const saveBtn = document.querySelector('.footer .btn:not(.btn2)');
+  if (saveBtn) {
+    saveBtn.innerText = 'Save Entry';
+  }
+}
+
+function copyCode() { 
+  navigator.clipboard.writeText(document.getElementById('viewCode').innerText); 
+  alert('Code copied to clipboard!'); 
+}
+
+// Fix 1 Image Interactive Operations - Updated for File API
+function openImgModal(fileName) {
+  const fileData = getFileFromStorage(fileName);
+  
+  if (fileData && fileData.data) {
+    // Display actual image from localStorage
+    document.getElementById('modalFileName').innerText = fileName;
+    const modalImage = document.getElementById('modalImage');
+    const trigger = document.getElementById('modalDownloadTrigger');
+    
+    // Show image preview
+    modalImage.src = fileData.data;
+    modalImage.style.display = 'block';
+    
+    // Setup download
+    trigger.href = fileData.data;
+    trigger.setAttribute('download', fileName);
+    
+    document.getElementById('imgModal').style.display = 'flex';
+  } else {
+    // Fallback message if file not found
+    document.getElementById('modalFileName').innerText = fileName;
+    document.getElementById('modalImage').style.display = 'none';
+    document.getElementById('imgModal').style.display = 'flex';
+    alert('Note: Image not yet uploaded. Use "Add New" to upload files.');
+  }
+}
+
+function closeImgModal() {
+  document.getElementById('imgModal').style.display = 'none';
+}
+
+// Fix 2: Handle actual file uploads using File API
+function appendFilesToArray() {
+  const fileInput = document.getElementById('addFiles');
+  if (fileInput.files.length > 0) {
+    Array.from(fileInput.files).forEach(file => {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        // Store actual file data as Base64 in localStorage
+        storeFileInStorage(file.name, e.target.result);
+        
+        // Add to persistent array for DB reference
+        if (!persistentFileArray.includes(file.name)) {
+          persistentFileArray.push(file.name);
+        }
+        
+        // Update file display
+        document.getElementById('fileDisplay').innerText = persistentFileArray.join(', ');
+      };
+      
+      reader.readAsDataURL(file);
+    });
+  }
+  fileInput.value = ''; // Reset input
+}
+
+function loadTopic(title) { 
+  const data = repoDB[title];
+  if(!data) return;
+  
+  currentViewingTopic = title;
+  
+  document.getElementById('viewTitle').innerText = title; 
+  
+  // Format dates for display
+  const createdDate = new Date(data.created).toLocaleDateString();
+  const modifiedDate = new Date(data.modified).toLocaleDateString();
+  document.getElementById('viewMeta').innerText = `Created: ${createdDate} | Modified: ${modifiedDate} | ${data.tags}`; 
+  
+  document.getElementById('viewDesc').innerText = data.desc; 
+  document.getElementById('viewCode').textContent = data.code; 
+  
+  // Update favorite button
+  const favBtn = document.getElementById('favBtn');
+  if (data.isFavorite) {
+    favBtn.innerHTML = '★ Remove from Favorites';
+    favBtn.style.color = '#f59e0b';
+  } else {
+    favBtn.innerHTML = '☆ Add to Favorites';
+    favBtn.style.color = '';
+  }
+  
+  // Fix 1: Handle actual files from localStorage
+  const attachDiv = document.getElementById('viewAttach');
+  attachDiv.innerHTML = ''; 
+  if (data.files && data.files.length > 0) {
+    data.files.forEach(file => {
+      let icon = '📄';
+      const isImg = file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.gif');
+      if(isImg) icon = '🖼';
+      if(file.endsWith('.xlsx') || file.endsWith('.csv')) icon = '📊';
+      
+      const fileData = getFileFromStorage(file);
+      
+      if(isImg) {
+        // Image: Create clickable span for modal
+        attachDiv.innerHTML += `<span class="attach-item" onclick="openImgModal('${file}')">${icon} ${file}</span>`;
+      } else if(fileData && fileData.data) {
+        // Real file in storage: Create download link from actual data
+        attachDiv.innerHTML += `<a href="${fileData.data}" download="${file}" class="attach-item">${icon} ${file}</a>`;
+      } else {
+        // File reference without actual data: Show as disabled/info
+        attachDiv.innerHTML += `<span class="attach-item" style="opacity:0.6; cursor:default;">${icon} ${file} (not uploaded)</span>`;
+      }
+    });
+  } else {
+    attachDiv.innerHTML = '<span style="font-size:0.85rem; color:#64748b;">No attachments</span>';
+  }
+
+  Prism.highlightElement(document.getElementById('viewCode'));
+}
+
+// Search Logic - Enhanced to search tags, code, description
+function searchTopics() {
+  const q = document.getElementById('q').value.toLowerCase();
+  if (q.length === 0) {
+    clearSearch();
+    return;
+  }
+  
+  const topics = document.querySelectorAll('.left .topic');
+  const folders = document.querySelectorAll('.left .children');
+  
+  // First hide all
+  topics.forEach(t => t.style.display = 'none');
+  folders.forEach(f => f.style.display = 'none');
+  
+  // Then show matching ones
+  topics.forEach(t => {
+    const topicTitle = t.innerText.toLowerCase();
+    const data = repoDB[t.innerText];
+    
+    // Search in: title, tags, description, code
+    const matchesTitle = topicTitle.includes(q);
+    const matchesTags = data && data.tags.toLowerCase().includes(q);
+    const matchesDesc = data && data.desc.toLowerCase().includes(q);
+    const matchesCode = data && data.code.toLowerCase().includes(q);
+    
+    if (matchesTitle || matchesTags || matchesDesc || matchesCode) {
+      t.style.display = 'block';
+      
+      // Show parent folder if it's in one
+      if (t.parentElement.classList.contains('children')) {
+        t.parentElement.style.display = 'block';
+        const folder = t.parentElement.previousElementSibling;
+        if (folder) {
+          folder.innerHTML = folder.innerHTML.replace('▶', '▼');
+        }
+      }
+    }
+  });
+}
+
+function clearSearch() {
+  document.getElementById('q').value = '';
+  document.querySelectorAll('.left .topic').forEach(t => t.style.display = 'block');
+  document.querySelectorAll('.left .children').forEach(c => {
+    c.style.display = 'none';
+    c.previousElementSibling.innerHTML = c.previousElementSibling.innerHTML.replace('▼', '▶');
+  });
+}
+
+// Delete Topic Function
+function deleteTopic(title) {
+  if (!confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) {
+    return;
+  }
+  
+  const data = repoDB[title];
+  
+  // Delete associated files from localStorage
+  if (data.files && data.files.length > 0) {
+    data.files.forEach(file => {
+      deleteFileFromStorage(file);
+    });
+  }
+  
+  // Delete from database
+  delete repoDB[title];
+  
+  // Save to GitHub
+  saveDatabaseToGitHub();
+  
+  // Remove from UI
+  const topics = document.querySelectorAll('.left .topic');
+  topics.forEach(t => {
+    if (t.innerText.trim() === title) {
+      t.remove();
+    }
+  });
+  
+  // Update folder count if it's in a folder
+  const folders = document.querySelectorAll('.left .treehdr.folder');
+  folders.forEach(folder => {
+    const childrenDiv = folder.nextElementSibling;
+    if (childrenDiv && childrenDiv.classList.contains('children')) {
+      const count = childrenDiv.children.length;
+      folder.innerHTML = folder.innerHTML.replace(/\(\d+\)/, `(${count})`);
+    }
+  });
+  
+  // Clear main view
+  document.getElementById('viewTitle').innerText = 'No Selection';
+  document.getElementById('viewMeta').innerText = '';
+  document.getElementById('viewDesc').innerText = 'Select a topic from the sidebar';
+  document.getElementById('viewCode').textContent = '';
+  document.getElementById('viewAttach').innerHTML = '';
+  currentViewingTopic = null;
+  
+  alert('Entry deleted successfully!');
+}
+
+// Edit Topic Function
+function editTopic(title) {
+  const data = repoDB[title];
+  if (!data) return;
+  
+  editingTopic = title;
+  
+  // Populate form with current data
+  document.getElementById('addTitle').value = title;
+  document.getElementById('addTags').value = data.tags;
+  document.getElementById('addDesc').value = data.desc;
+  document.getElementById('addCode').value = data.code;
+  document.getElementById('addTopic').value = ''; // Clear topic selection
+  
+  // Load existing files
+  persistentFileArray = [...data.files];
+  document.getElementById('fileDisplay').innerText = persistentFileArray.length > 0 ? persistentFileArray.join(', ') : 'No files selected';
+  
+  // Update button text
+  const saveBtn = document.querySelector('.footer .btn:not(.btn2)');
+  saveBtn.innerText = 'Update Entry';
+  
+  // Show add page
+  showAdd();
+}
+
+// Toggle Favorite Function
+function toggleFavorite(title) {
+  if (!title || !repoDB[title]) return;
+  
+  repoDB[title].isFavorite = !repoDB[title].isFavorite;
+  
+  // Update button appearance
+  const favBtn = document.getElementById('favBtn');
+  if (repoDB[title].isFavorite) {
+    favBtn.innerHTML = '★ Remove from Favorites';
+    favBtn.style.color = '#f59e0b';
+  } else {
+    favBtn.innerHTML = '☆ Add to Favorites';
+    favBtn.style.color = '';
+  }
+  
+  // Save to GitHub
+  saveDatabaseToGitHub();
+  
+  // Update sidebar favorites list
+  updateFavoritesSection();
+}
+
+// Update Favorites Section in Sidebar
+function updateFavoritesSection() {
+  const favHeader = Array.from(document.querySelectorAll('.treehdr')).find(el => el.innerText.includes('Favorites'));
+  if (!favHeader) return;
+  
+  const favorites = Object.keys(repoDB).filter(key => repoDB[key].isFavorite);
+  favHeader.innerHTML = `⭐ Favorites (${favorites.length})`;
+  
+  // Update favorite topics display (next sibling after header)
+  let favContainer = favHeader.nextElementSibling;
+  if (!favContainer || favContainer.classList.contains('folder') || favContainer.classList.contains('children')) {
+    // Create container if doesn't exist
+    favContainer = document.createElement('div');
+    favContainer.id = 'favoritesContainer';
+    favHeader.parentNode.insertBefore(favContainer, favHeader.nextSibling);
+  }
+  
+  favContainer.innerHTML = '';
+  favorites.forEach(fav => {
+    const topicEl = document.createElement('div');
+    topicEl.className = 'topic';
+    topicEl.innerText = fav;
+    topicEl.onclick = () => loadTopic(fav);
+    favContainer.appendChild(topicEl);
+  });
+}
+
+// Update Recent Section
+function updateRecentSection(title) {
+  const recentHeader = Array.from(document.querySelectorAll('.treehdr')).find(el => el.innerText.includes('Recent'));
+  if (recentHeader) {
+    recentHeader.innerHTML = `🕒 Recent (1)`;
+    let nextEl = recentHeader.nextElementSibling;
+    if (nextEl && !nextEl.classList.contains('children') && !nextEl.classList.contains('folder')) {
+      nextEl.innerText = title;
+      nextEl.onclick = () => loadTopic(title);
+    }
+  }
+}
+
+// Save Logic
+function handleTopicSelect() {
+  const select = document.getElementById('addTopic');
+  if (select.value === 'new') {
+    const newTopicName = prompt("Enter new topic name:");
+    if (newTopicName) {
+      const folderId = 'folder-' + newTopicName.toLowerCase().replace(/\s+/g, '-');
+      
+      const newOption = document.createElement('option');
+      newOption.value = folderId;
+      newOption.text = newTopicName;
+      select.insertBefore(newOption, select.options[select.options.length - 1]);
+      select.value = folderId;
+
+      const sidebar = document.getElementById('sidebar');
+      const hdr = document.createElement('div');
+      hdr.className = 'treehdr folder';
+      hdr.innerHTML = `▶ ${newTopicName} (0)`;
+      hdr.onclick = () => toggle(folderId);
+      
+      const childrenDiv = document.createElement('div');
+      childrenDiv.id = folderId;
+      childrenDiv.className = 'children';
+      
+      sidebar.insertBefore(hdr, document.getElementById('independent-topics'));
+      sidebar.insertBefore(childrenDiv, document.getElementById('independent-topics'));
+    } else {
+      select.value = "";
+    }
+  }
+}
+
+function saveEntry() {
+  const title = document.getElementById('addTitle').value.trim();
+  if (!title) { alert('Title is mandatory!'); return; }
+  
+  const tags = document.getElementById('addTags').value;
+  const desc = document.getElementById('addDesc').value;
+  const code = document.getElementById('addCode').value;
+  const folderId = document.getElementById('addTopic').value;
+  const now = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+  if (editingTopic) {
+    // Update existing entry
+    const oldData = repoDB[editingTopic];
+    repoDB[title] = { 
+      desc, 
+      tags, 
+      code, 
+      files: [...persistentFileArray],
+      created: oldData.created,
+      modified: now,
+      isFavorite: oldData.isFavorite
+    };
+    
+    // If title changed, delete old entry
+    if (editingTopic !== title) {
+      delete repoDB[editingTopic];
+      // Update sidebar UI
+      const topics = document.querySelectorAll('.left .topic');
+      topics.forEach(t => {
+        if (t.innerText.trim() === editingTopic) {
+          t.innerText = title;
+          t.onclick = () => loadTopic(title);
+        }
+      });
+    }
+    
+    // Save to GitHub
+    saveDatabaseToGitHub();
+    alert('Entry updated successfully!');
+    editingTopic = null;
+  } else {
+    // Add new entry
+    repoDB[title] = { 
+      desc, 
+      tags, 
+      code, 
+      files: [...persistentFileArray],
+      created: now,
+      modified: now,
+      isFavorite: false
+    };
+
+    // Create UI element
+    const newTopic = document.createElement('div');
+    newTopic.className = 'topic';
+    newTopic.innerText = title;
+    newTopic.onclick = () => loadTopic(title);
+
+    // Append to correct location
+    if (!folderId || folderId === "") {
+      document.getElementById('independent-topics').appendChild(newTopic);
+    } else {
+      const folder = document.getElementById(folderId);
+      folder.appendChild(newTopic);
+      const hdr = folder.previousElementSibling;
+      const count = folder.children.length;
+      hdr.innerHTML = hdr.innerHTML.replace(/\(\d+\)/, `(${count})`);
+    }
+
+    // Save to GitHub
+    saveDatabaseToGitHub();
+    alert('Entry saved successfully!');
+  }
+
+  // Update Recent and Favorites
+  updateRecentSection(title);
+  updateFavoritesSection();
+
+  // Clear Form
+  document.getElementById('addTitle').value = '';
+  document.getElementById('addTags').value = '';
+  document.getElementById('addDesc').value = '';
+  document.getElementById('addCode').value = '';
+  document.getElementById('addTopic').value = '';
+  persistentFileArray = [];
+  document.getElementById('fileDisplay').innerText = 'No files selected';
+  
+  // Reset save button
+  const saveBtn = document.querySelector('.footer .btn:not(.btn2)');
+  saveBtn.innerText = 'Save Entry';
+  
+  showHome();
+  loadTopic(title);
+}
+</script>
+</body>
+</html>
