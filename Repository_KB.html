@@ -316,11 +316,15 @@ const GITHUB_CONFIG = {
   apiUrl: 'https://api.github.com'
 };
 
+// CORS Proxy (to bypass browser CORS restrictions on GitHub Pages)
+const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+
 // GitHub API Headers
 const githubHeaders = {
   'Authorization': `token ${GITHUB_CONFIG.token}`,
   'Content-Type': 'application/json',
-  'Accept': 'application/vnd.github.v3+json'
+  'Accept': 'application/vnd.github.v3+json',
+  'X-Requested-With': 'XMLHttpRequest'
 };
 
 let isAdminLoggedIn = false;
@@ -332,7 +336,7 @@ async function fetchDatabaseFromGitHub() {
   try {
     updateSyncStatus('connecting');
     
-    const url = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
+    const url = `${CORS_PROXY}${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
     
     const response = await fetch(url, {
       method: 'GET',
@@ -360,7 +364,7 @@ async function fetchDatabaseFromGitHub() {
   } catch (error) {
     console.error('Error fetching from GitHub:', error);
     updateSyncStatus('error');
-    alert('⚠️ Could not sync with GitHub. Check your token/repo. Working offline with local data.');
+    alert('⚠️ Could not sync with GitHub. Working offline with local data. If this persists, try using Python local server instead.');
     return null;
   }
 }
@@ -381,7 +385,7 @@ async function saveDatabaseToGitHub() {
     const encodedContent = btoa(JSON.stringify(databaseContent, null, 2));
     
     // First, try to get the current file to get its SHA
-    const getUrl = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
+    const getUrl = `${CORS_PROXY}${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
     
     let sha = null;
     try {
@@ -399,7 +403,7 @@ async function saveDatabaseToGitHub() {
     }
     
     // Now update/create the file
-    const putUrl = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
+    const putUrl = `${CORS_PROXY}${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/database.json`;
     
     const putResponse = await fetch(putUrl, {
       method: 'PUT',
@@ -422,7 +426,7 @@ async function saveDatabaseToGitHub() {
   } catch (error) {
     console.error('Error saving to GitHub:', error);
     updateSyncStatus('error');
-    alert('⚠️ Could not save to GitHub. Data saved locally only.');
+    alert('⚠️ Could not save to GitHub. Data saved locally. Try again or use Python server.');
     return false;
   }
 }
@@ -437,7 +441,7 @@ async function uploadFileToGitHub(fileName, fileData) {
     const base64Data = fileData.split(',')[1];
     
     // Upload to attachments folder
-    const uploadUrl = `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/attachments/${fileName}`;
+    const uploadUrl = `${CORS_PROXY}${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/attachments/${fileName}`;
     
     const uploadResponse = await fetch(uploadUrl, {
       method: 'PUT',
